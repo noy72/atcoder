@@ -1,0 +1,31 @@
+#include<bits/stdc++.h>
+#define range(i,a,b) for(int i = (a); i < (b); i++)
+#define rep(i,b) for(int i = 0; i < (b); i++)
+#define all(a) (a).begin(), (a).end()
+#define show(x)  cerr << #x << " = " << (x) << endl;
+//const int INF = 1e8;
+using namespace std;
+
+int main(){
+	string s;
+	cin >> s;
+	reverse(all(s));
+
+	int cnt = 0;
+	int p = -1;
+	int ans = 0;
+	rep(i,s.size()){
+		if(s[i] == ')'){
+			cnt++;
+		}else{
+			cnt--;
+		}
+		if(cnt < 0){
+			if(p == -1) p = i;
+			ans++;
+			cnt = 0;
+		}
+	}
+	show(ans)
+	cout << ans + s.size() - p - 1 << endl;
+}
