@@ -1,0 +1,90 @@
+#include<bits/stdc++.h>
+#define range(i,a,b) for(int i = (a); i < (b); i++)
+#define rep(i,b) for(int i = 0; i < (b); i++)
+#define all(a) (a).begin(), (a).end()
+#define show(x)  cerr << #x << " = " << (x) << endl;
+const int INF = 1e8;
+using namespace std;
+
+
+struct Point{ int x, y; };
+int dy[4] = {0,1,0,-1}, dx[4] = {1,0,-1,0};
+
+const int N = 300;
+char m[N][N];
+int dis[N][N];
+
+int bfs(int h, int w, Point p, Point g, int cost){
+	queue<Point> q;
+
+	dis[p.y][p.x] = 0;
+	q.push(p);
+
+	Point u;
+	while(not q.empty()){
+		u = q.front(); q.pop();
+		rep(i,4){
+			Point next;
+			next.x = u.x + dx[i];
+			next.y = u.y + dy[i];
+			if(next.x < 0 || next.x >= w || next.y < 0 || next.y >= h) continue;
+			if(dis[next.y][next.x] == INF && m[next.y][next.x] == '.'){
+				dis[next.y][next.x] = dis[u.y][u.x] + cost;
+				q.push(next);
+			}
+		}
+	}
+	return dis[g.y][g.x];
+}
+
+int main(){
+	int h, w;
+	cin >> h >> w;
+
+	Point s, g;
+	rep(i,h){
+		rep(j,w){
+			cin >> m[i][j];
+			if(m[i][j] == 'S'){
+				s = {j,i};
+				m[i][j] = '.';
+			}else if(m[i][j] == 'G'){
+				g = {j,i};
+				m[i][j] = '.';
+			}
+		}
+	}
+
+	rep(i,N) rep(j,N) dis[i][j] = INF;
+	bfs(h, w, s, g, 1);
+	bfs(h, w, g, g, -1);
+
+	rep(i,h){ rep(j,w){ cout << dis[i][j]; } cout << endl; }
+
+	int maxi = 0;
+	rep(i,h){
+		rep(j,w){
+			if(m[i][j] == '#'){
+				set<int> a, b;
+				rep(k,4){
+					Point next;
+					next.x = j + dx[k];
+					next.y = i + dy[k];
+					if(next.x < 0 || next.x >= w || next.y < 0 || next.y >= h) continue;
+
+					auto& p = dis[next.y][next.x];
+					cout << p << ' ';
+					if(p == INF) continue;
+					if(p < 0) b.emplace(-p);
+					else a.emplace(p);
+				}
+				cout << endl;
+				if(a.empty() or b.empty()) continue;
+				show(*a.begin())
+
+				maxi = max(maxi, *a.begin() + *b.begin() + 1);
+			}
+		}
+	}
+	cout << maxi << endl;
+}
