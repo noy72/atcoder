@@ -60,10 +60,9 @@ vector<int> bfs(int s, int n, bool f){
 	return path;
 }
 
-const int gmax_n = 100005;
-
-int par[gmax_n]; //親
-int depth[gmax_n];//木の深さ
+//---------------------------- union-find
+int par[MAX_V]; //親
+int depth[MAX_V];//木の深さ
 
 void init(int n){
 	rep(i,n){
@@ -96,10 +95,9 @@ void unite(int x, int y){
 bool same(int x, int y){
 	return find(x) == find(y);
 }
+//----------------------------
 
 signed main(){
-	cin.tie(0);
-	ios::sync_with_stdio(false);
 	int n;
 	cin >> n;
 
@@ -113,10 +111,7 @@ signed main(){
 		g[b].emplace_back(a,c);
 	}
 
-	vector<int> path = bfs(bfs(0, n, 1).front(), n, 0);
-	//for(auto i : path){ cout << i << endl; }
-
-	//assert(true);
+	vector<int> path = bfs(bfs(0, n, 1).front(), n, 0); //最長パスを求める
 	vector<bool> used(n,0);
 	vector<int> ans(n);
 	for(auto i : path){
@@ -131,7 +126,7 @@ signed main(){
 	}
 
 	init(n);
-	rep(i,n - 1){
+	rep(i,n - 1){ //部分木を求める
 		if(used[e[i].first] and used[e[i].second]) continue;
 		unite(e[i].first, e[i].second);
 	}

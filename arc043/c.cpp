@@ -6,102 +6,89 @@
 //const int INF = 1e8;
 using namespace std;
 
-#define int long long
-
 const int MAX_N = 100005;
 
 //[1, n]
 int bit[MAX_N + 1] = {0};
 
 int sum(int i){
-	int s = 0;
-	while(i > 0){
-		s += bit[i];
-		i -= i & -i;
-	}
-	return s;
+    int s = 0;
+    while(i > 0){
+        s += bit[i];
+        i -= i & -i;
+    }
+    return s;
 }
 
 void add(int i, int x){
-	while(i <= MAX_N){
-		bit[i] += x;
-		//bit[i] = max(bit[i], x);
-		i += i & - i;
-	}
+    while(i <= MAX_N){
+        bit[i] += x;
+        //bit[i] = max(bit[i], x);
+        i += i & - i;
+    }
 }
 
-signed main(){
-	int n;
-	cin >> n;
+int main(){
+    int n;
+    cin >> n;
 
-	vector<int> a(n), b(n);
-	rep(i,n){ cin >> a[i]; }
+    map<int,int> B; //A,B:value, pos
+    vector<int> a(n);
+    rep(i,n){
+        cin >> a[i];
+    }
+    rep(i,n){
+        int x;
+        cin >> x;
+        B[x] = i + 1;
+    }
 
-	map<int,int> m;
-	rep(i,n){
-		cin >> b[i];
-		m[b[i]] = i + 1;
-	}
+    long long ans = 0;
+    rep(i,n){
+        ans += (i - sum(B[a[i]]));
+        add(B[a[i]], 1);
+    }
+    if(ans % 2){
+        cout << -1 << endl;
+        return 0;
+    }
 
-	vector<int> sa(n); //bの大小関係でaを置き換えたもの
-	rep(i,n){
-		sa[i] = m[a[i]];
-	}
+    memset(bit, 0, sizeof(bit));
+    ans /= 2;
+    vector<int> table(n,0);
+    rep(i,n){
+        table[i] = sum(B[a[i]]);
+        add(n + 1 - B[a[i]], 1);
+        show(table[i])
+    }
 
-	vector<int> r(n,0);
-	rep(i,n){
-		r[i] = sum(n + 1) - sum(sa[i] + 1);
-		add(sa[i] + 1, 1);
-	}
-
-	long long sum = accumulate(all(r), 0LL);
-	if(sum % 2){
-		cout << -1 << endl;
-		return 0;
-	}
-	sum /= 2;
-
-	//for(auto i : r){ cout << i << ' '; } cout << endl;
-	//show(sum)
-
-	vector<int> ridx(n + 1); // i = a[j] となるような j を返す
-	rep(i,n){
-		ridx[a[i]] = i;
-	}
-
-	vector<bool> used(n + 1,0);
-	vector<int> ans;
-	rep(i,n){
-		int t = ridx[b[i]];
-		if(sum >= r[t]){ //数列 a の b[i] を r[b[i]]回スワップすると、数列 b と同じ位置まで持っていける
-			sum -= r[t];
-			ans.emplace_back(b[i]);
-			used[b[i]] = true;
-		}else{
-			r[t] -= sum; //sum回スワップできる == 前から r[i] - sum 番目にある
-
-			int j = 0;
-			while(r[t]){
-				if(not used[a[j]]){
-					r[t]--;
-					ans.emplace_back(a[j]);
-				}
-				j++;
-			}
-
-			ans.emplace_back(b[i]);
-			used[b[i]] = true;
-
-			for(; j < n; j++){
-				if(not used[a[j]]) ans.emplace_back(a[j]);
-			}
-			break;
-		}
-	}
-
-	rep(i,n){
-		if(i) cout << ' ';
-		cout << ans[i];
-	}
-	cout << endl;
+    vector<int> num ;
+    rep(i,n){
+        if(ans >= table[i]){
+            ans -= table[i];
+            num.emplace_back(B[a[i]]);
+        }else{
+            if(ans == 0) goto END;
+            show("JI")
+            rep(j,num.size()){
+                show(num[j])
+            }
+            range(j,i,n){
+                num.emplace_back(B[a[j]]);
+            }
+            rep(j,1e8){
+                range(k,i + j,n - 1){
+                    if(B[a[k]] > B[a[k + 1]]){
+                        ans--;
+                        swap(B[a[k]], B[a[k + 1]]);
+                    }
+                    if(ans == 0) goto END;
+                }
+            }
+        }
+    }
+END:
+    rep(i,n){
+        cout << num[i] << (i == n - 1 ? '\n' : ' ');
+    }
 }
